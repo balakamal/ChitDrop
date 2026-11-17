@@ -88,7 +88,7 @@ function renderRoom(){
  app.innerHTML=`<section class="room-view"><div class="room-heading"><div><div class="eyebrow">A shared drop · ${room.theme==='dark'?'Dark room':'Warm paper'}</div><h1>${esc(room.title)}</h1><p>${esc(room.description||'Choose one crumpled chit. What’s inside is yours to discover.')}</p></div><div class="room-count"><b>${remaining}<small> / ${total}</small></b><span>Still unopened</span></div></div>${contents}<div class="participant-bar"><span class="name-chip">Picking as ${esc(name)}</span></div></section>`;
  $('#stage')?.addEventListener('click',pick);$('#random-pick')?.addEventListener('click',randomPick);$('#view-pick')?.addEventListener('click',()=>reveal(myPick.body,myPick.picked_at,true));
 }
-function randomPick(){const buttons=$('[data-pick]',$('#stage'));if(!buttons.length)return;const chosen=buttons[Math.floor(Math.random()*buttons.length)];pick({target:chosen});}
+function randomPick(){const buttons=$('[data-pick]',$('#stage')).filter(button=>!button.disabled);if(!buttons.length)return;const chosen=buttons[Math.floor(Math.random()*buttons.length)];pick({target:chosen});}
 async function pick(e){
  const b=e.target.closest('[data-pick]');if(!b||b.disabled)return;$$('[data-pick]',$('#stage')).forEach(x=>x.disabled=true);b.classList.add('is-picking');
  try{const r=await rpc('pick_chit',{p_token:token,p_chit_id:b.dataset.pick,p_participant_name:name,p_session_id:session});if(!r?.ok){toast('Someone got to that chit first. Pick another.',true);await refresh();return;}await refresh();reveal(r.body,r.picked_at,false);}
