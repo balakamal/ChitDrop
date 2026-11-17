@@ -1,0 +1,1 @@
+window.CHITDROP_CONFIG = { SUPABASE_URL: "https://ycxtyyayiwbwfqxqwqej.supabase.co", SUPABASE_PUBLISHABLE_KEY: "sb_publishable_aC-fuLGJpW3nUbUhnNpm5w_9n6lbUWP" };
