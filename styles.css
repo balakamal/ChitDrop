@@ -56,3 +56,26 @@ html,body{max-width:100%;overflow-x:hidden}
 @media(max-width:760px){.managed-heading{align-items:flex-start}.bulk-delete-toolbar{width:100%;justify-content:space-between;flex-wrap:wrap}.managed-chit{grid-template-columns:22px 25px minmax(0,1fr)}.managed-chit>.actions,.managed-chit>.picked-label{grid-column:3}}
 
 @media(max-width:760px){.managed-chit>.actions,.managed-chit>.picked-label{grid-column:3 / -1}}
+
+/* Structured chits: clear header / content / footer hierarchy */
+.structured-chit{display:grid;gap:18px;width:100%;text-align:left}
+.structured-block{padding:0 0 16px;border-bottom:1px solid #cfc5b2}
+.structured-block:last-child{padding-bottom:0;border-bottom:0}
+.structured-block h3{margin:0 0 9px;color:#8b724f;font:600 10px/1.4 "DM Mono",monospace;letter-spacing:.14em;text-transform:uppercase}
+.structured-description{color:#292a25;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65}
+.structured-header .structured-description{font:500 clamp(25px,3.6vw,38px)/1.2 "Playfair Display",Georgia,serif}
+.structured-content .structured-description{font:16px/1.7 "DM Sans",sans-serif}
+.structured-footer .structured-description{font:14px/1.65 "DM Sans",sans-serif}
+.reveal-body:has(.structured-chit){text-align:left}
+.revealed-card .structured-chit{gap:14px}
+.revealed-card .structured-block{padding-bottom:12px}
+.revealed-card .structured-block h3{font-size:9px}
+.revealed-card .structured-header .structured-description{font-size:25px}
+.revealed-card .structured-content .structured-description{font-size:14px}
+.revealed-card .structured-footer .structured-description{font-size:13px}
+@media(max-width:760px){
+ .structured-chit{gap:14px}
+ .structured-header .structured-description{font-size:27px}
+ .structured-content .structured-description{font-size:15px}
+ .reveal-sheet{padding:54px 24px}
+}
