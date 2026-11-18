@@ -6,7 +6,7 @@ const $ = (s, root=document) => root.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const app = $('#app');
 let user = null, token = new URLSearchParams(location.search).get('room'), room = null, ownerRoom = null;
-let name = '', session = '', poll = null, busy = false, myPick = null;
+let name = '', session = '', poll = null, busy = false, myPick = null, roomIntroPlayed = false;
 let theme = localStorage.getItem('chitdrop:theme') || 'light';
 function toast(s, error=false) { const n=document.createElement('div'); n.className='toast'+(error?' error':''); n.textContent=s; $('#toast-root').append(n); setTimeout(()=>n.remove(),3200); }
 function setTheme(t) { theme=t; document.documentElement.dataset.theme=t; localStorage.setItem('chitdrop:theme',t); $('.theme-glyph').textContent=t==='dark'?'☾':'☼'; }
@@ -84,9 +84,11 @@ function pos(i,n){const a=i*2.399963+.3,r=n===1?0:5+37*Math.sqrt((i+1)/n);return
 function rot(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)%57-28;}
 function renderRoom(){
  const a=room.available_chits||[],remaining=room.remaining_count||0,total=room.total_count||0;
- const contents=myPick?`<div class="empty-room"><div class="empty-icon">✳</div><h2>Your chit is picked.</h2><p>Your surprise is saved to this browser session.</p><button class="button secondary small" id="view-pick">View your pick</button></div>`:remaining?`<div class="room-stage-wrap"><div class="room-stage" id="stage"><span class="pick-hand" aria-hidden="true">👇</span>${a.map((c,i)=>{const p=pos(i,a.length);return `<button class="paper-ball" data-pick="${c.id}" aria-label="Pick a crumpled paper chit" style="left:${p.x}%;top:${p.y}%;--size:${a.length>35?42:a.length>18?48:58}px;--rot:${rot(c.id)}deg;--delay:${-i*.23}s"></button>`;}).join('')}</div><p class="stage-footnote">Tap a paper to make your pick</p></div>`:`<div class="empty-room"><div class="empty-icon">✳</div><h2>All picked.</h2><p>Every chit in this room has found a home.</p></div>`;
+ const playIntro=!roomIntroPlayed&&!myPick&&remaining>0;
+ if(playIntro)roomIntroPlayed=true;
+ const contents=myPick?`<div class="empty-room"><div class="empty-icon">✳</div><h2>Your chit is picked.</h2><p>Your surprise is saved to this browser session.</p><button class="button secondary small" id="view-pick">View your pick</button></div>`:remaining?`<div class="room-stage-wrap"><div class="room-stage${playIntro?' is-dealing':''}" id="stage"><span class="pick-hand" aria-hidden="true">☝</span>${a.map((c,i)=>{const p=pos(i,a.length);return `<button class="paper-ball" data-pick="${c.id}" aria-label="Pick a crumpled paper chit" style="--x:${p.x}%;--y:${p.y}%;--size:${a.length>35?42:a.length>18?48:58}px;--rot:${rot(c.id)}deg;--delay:${Math.min(i*.055,1.25)}s"></button>`;}).join('')}</div><p class="stage-footnote">Tap a paper to make your pick</p></div>`:`<div class="empty-room"><div class="empty-icon">✳</div><h2>All picked.</h2><p>Every chit in this room has found a home.</p></div>`;
  app.innerHTML=`<section class="room-view"><div class="room-heading"><div><div class="eyebrow">A shared drop · ${room.theme==='dark'?'Dark room':'Warm paper'}</div><h1>${esc(room.title)}</h1><p>${esc(room.description||'Choose one crumpled chit. What’s inside is yours to discover.')}</p></div><div class="room-count"><b>${remaining}<small> / ${total}</small></b><span>Still unopened</span></div></div>${contents}<div class="participant-bar"><span class="name-chip">Picking as ${esc(name)}</span></div></section>`;
- $('#stage')?.addEventListener('click',pick);$('#view-pick')?.addEventListener('click',()=>reveal(myPick.body,myPick.picked_at,true));
+ $('#stage')?.addEventListener('click',pick);$('#view-pick')?.addEventListener('click',()=>reveal(myPick.body,myPick.picked_at,true));if(playIntro){const stage=$('#stage');stage?.addEventListener('animationend',e=>{if(e.target===stage)stage.classList.remove('is-dealing');},{once:true});setTimeout(()=>stage?.classList.remove('is-dealing'),3200);}
 }
 async function pick(e){
  const b=e.target.closest('[data-pick]');if(!b||b.disabled)return;$$('[data-pick]',$('#stage')).forEach(x=>x.disabled=true);b.classList.add('is-picking');
