@@ -23,3 +23,8 @@
 
 /* Chits remain selectable during the shuffle animation; motion must never block the core action. */
 .room-stage .paper-ball{pointer-events:auto!important;touch-action:manipulation;z-index:2}.room-stage .paper-ball:disabled{pointer-events:none!important}.room-stage.is-dealing .paper-ball{cursor:pointer}
+
+/* Keep the guidance hand visible above the paper and let native click handle taps. */
+.room-stage .pick-hand{z-index:8;pointer-events:none;opacity:1}
+.room-stage .paper-ball{z-index:2;touch-action:manipulation;cursor:pointer}
+.room-stage .paper-ball:disabled{pointer-events:none;cursor:default}
