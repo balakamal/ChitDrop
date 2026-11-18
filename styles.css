@@ -79,3 +79,5 @@ html,body{max-width:100%;overflow-x:hidden}
  .structured-content .structured-description{font-size:15px}
  .reveal-sheet{padding:54px 24px}
 }
+/* Preserve the original type treatment for revealed plain-text chits. */
+.revealed-card .reveal-plain{margin:0 0 14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font:16px/1.6 'Playfair Display',Georgia,serif}
