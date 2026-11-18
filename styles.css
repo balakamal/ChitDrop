@@ -54,3 +54,5 @@ html,body{max-width:100%;overflow-x:hidden}
 .chit-select-placeholder{width:22px}
 .managed-chit textarea{min-width:0}
 @media(max-width:760px){.managed-heading{align-items:flex-start}.bulk-delete-toolbar{width:100%;justify-content:space-between;flex-wrap:wrap}.managed-chit{grid-template-columns:22px 25px minmax(0,1fr)}.managed-chit>.actions,.managed-chit>.picked-label{grid-column:3}}
+
+@media(max-width:760px){.managed-chit>.actions,.managed-chit>.picked-label{grid-column:3 / -1}}
