@@ -32,15 +32,15 @@ function serializeStructuredChit(value){
  return body;
 }
 function validateChitBody(body){
- const value=String(body??'');
- if(!value.trim())throw Error('Each chit must contain some text.');
- let parsed;
- try{parsed=JSON.parse(value);}catch(error){if(value.length>MAX_CHIT_CHARS)throw Error('Each chit can contain up to '+MAX_CHIT_CHARS+' characters.');return value;}
- if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed)&&
-   (parsed.type==='structured'||['header','content','footer'].some(k=>Object.prototype.hasOwnProperty.call(parsed,k)))){
+ const value=String(body??''),trimmed=value.trim();
+ if(!trimmed)throw Error('Each chit must contain some text.');
+ if(trimmed.length>MAX_CHIT_CHARS)throw Error('Each chit can contain up to '+MAX_CHIT_CHARS+' characters.');
+ if(trimmed[0]==='{'||trimmed[0]==='['){
+  let parsed;
+  try{parsed=JSON.parse(trimmed);}catch(error){throw Error('The JSON is not valid. Check commas, quotes and brackets.');}
+  if(Array.isArray(parsed))throw Error('A JSON array creates multiple chits. Paste it into the bulk chits field.');
   return serializeStructuredChit(parsed);
  }
- if(value.length>MAX_CHIT_CHARS)throw Error('Each chit can contain up to '+MAX_CHIT_CHARS+' characters.');
  return value;
 }
 function renderChitBody(body){
