@@ -97,13 +97,24 @@ function renderRoom(){
  const revealedMarkup=revealed.length?`<section class="revealed-section"><h2>Unfolded chits</h2><p class="muted">Already-picked surprises, visible to everyone.</p><div class="revealed-grid">${revealed.map(c=>`<article class="revealed-card"><p>${esc(c.body)}</p><small>Picked by ${esc(c.picked_by||'Participant')}</small></article>`).join('')}</div></section>`:'';
  const lockMarkup=room.is_locked?'<div class="room-lock-banner">Room locked · Picking is paused</div>':'';
  app.innerHTML=`<section class="room-view"><div class="room-heading"><div><div class="eyebrow">A shared drop · ${room.theme==='dark'?'Dark room':'Warm paper'}</div><h1>${esc(room.title)}</h1><p>${esc(room.description||'Choose one crumpled chit. What’s inside is yours to discover.')}</p></div><div class="room-count"><b>${remaining}<small> / ${total}</small></b><span>Still unopened</span></div></div>${lockMarkup}${room.is_locked?contents.replace('Tap a paper to make your pick','Picking is paused while this room is locked'):contents}${revealedMarkup}<div class="participant-bar"><span class="name-chip">Picking as ${esc(name)}</span></div></section>`;
- // Use the browser's native click activation for both touch and mouse (and keyboard).
- $('[data-pick]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();pick({target:b});}));
- $('#view-pick')?.addEventListener('click',()=>reveal(myPick.body,myPick.picked_at,true));const startHandTour=()=>{const stage=$('#stage'),hand=$('.pick-hand',stage);if(!stage||!hand)return;const move=()=>{const chits=$('[data-pick]',stage);if(!chits.length){hand.classList.add('hand-hidden');return;}let next=Math.floor(Math.random()*chits.length);if(chits.length>1&&next===handIndex)next=(next+1+Math.floor(Math.random()*(chits.length-1)))%chits.length;handIndex=next;const target=chits[next];const x=target.style.getPropertyValue('--x')||'50%',y=target.style.getPropertyValue('--y')||'50%';hand.style.left=x;hand.style.top=y;hand.classList.remove('hand-hidden');};move();handTimer=setInterval(move,1350);};startHandTour();
+ // One delegated click listener handles mouse, touch and keyboard activation.
+ const stage=$('#stage'),hand=stage?$('.pick-hand',stage):null;
+ const getChits=()=>stage?Array.from(stage.querySelectorAll('[data-pick]')):[];
+ const positionHand=chit=>{if(!hand||!chit)return;hand.style.left=chit.style.getPropertyValue('--x')||'50%';hand.style.top=chit.style.getPropertyValue('--y')||'50%';hand.classList.remove('hand-hidden');};
+ const moveHandToRandomChit=()=>{const chits=getChits();if(!chits.length){hand?.classList.add('hand-hidden');return;}let next=Math.floor(Math.random()*chits.length);if(chits.length>1&&next===handIndex)next=(next+1+Math.floor(Math.random()*(chits.length-1)))%chits.length;handIndex=next;positionHand(chits[next]);};
+ const startHandTour=()=>{if(!stage||!hand||room.is_locked)return;if(handTimer)clearInterval(handTimer);moveHandToRandomChit();handTimer=setInterval(moveHandToRandomChit,1350);};
+ if(stage){
+  stage.addEventListener('click',e=>{const chit=e.target.closest?.('[data-pick]');if(!chit||!stage.contains(chit)||chit.disabled)return;e.preventDefault();pick({target:chit});});
+  // On desktop, pause the guided tour and move the hand to the paper under the mouse.
+  stage.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse'&&e.pointerType!=='pen')return;const chit=e.target.closest?.('[data-pick]');if(!chit||chit.disabled)return;if(handTimer){clearInterval(handTimer);handTimer=null;}positionHand(chit);});
+  stage.addEventListener('pointerleave',e=>{if(e.pointerType!=='mouse'&&e.pointerType!=='pen')return;startHandTour();});
+ }
+ $('#view-pick')?.addEventListener('click',()=>reveal(myPick.body,myPick.picked_at,true));
+ startHandTour();
 }
 async function pick(e){
  const b=e.target?.closest?.('[data-pick]')||e.target;if(!b||!b.matches?.('[data-pick]')||b.disabled||room?.is_locked||b.dataset.picking==='true')return;
- b.dataset.picking='true';if(handTimer){clearInterval(handTimer);handTimer=null;}const hand=$('.pick-hand',$('#stage'));if(hand){hand.style.left=b.style.getPropertyValue('--x')||'50%';hand.style.top=b.style.getPropertyValue('--y')||'50%';hand.classList.remove('hand-hidden');}$('[data-pick]',$('#stage')).forEach(x=>x.disabled=true);b.classList.add('is-picking');
+ b.dataset.picking='true';if(handTimer){clearInterval(handTimer);handTimer=null;}const stage=$('#stage'),hand=stage?$('.pick-hand',stage):null;if(hand){hand.style.left=b.style.getPropertyValue('--x')||'50%';hand.style.top=b.style.getPropertyValue('--y')||'50%';hand.classList.remove('hand-hidden');}if(stage)stage.querySelectorAll('[data-pick]').forEach(x=>x.disabled=true);b.classList.add('is-picking');
  try{const r=await rpc('pick_chit',{p_token:token,p_chit_id:b.dataset.pick,p_participant_name:name,p_session_id:session});if(!r?.ok){toast(r?.code==='ROOM_LOCKED'?'This room is locked. Picking is paused.':'Someone got to that chit first. Pick another.',true);await refresh();return;}await refresh();reveal(r.body,r.picked_at,false);}
  catch(x){toast(x.message||'Could not save your pick.',true);await refresh();}
 }
