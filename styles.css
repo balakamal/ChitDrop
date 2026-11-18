@@ -35,3 +35,9 @@
 .bulk-entry textarea:focus{border-color:#b18b57}
 .bulk-entry .hint{margin:8px 0 12px;font-size:10px;line-height:1.6}
 .editor>.hint{margin:-8px 0 14px;font-size:10px;line-height:1.6;color:var(--muted)}
+
+/* Reveal modal must never introduce a horizontal scrollbar. */
+html,body{max-width:100%;overflow-x:hidden}
+.reveal-backdrop{box-sizing:border-box;width:100%;max-width:100%;overflow:hidden}
+.reveal-sheet{box-sizing:border-box;width:min(680px,100%);max-width:100%;min-width:0;overflow-x:hidden;overflow-y:auto}
+.reveal-body{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-wrap:anywhere;word-break:normal}
