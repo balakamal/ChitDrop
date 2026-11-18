@@ -97,7 +97,7 @@ async function pick(e){
  catch(x){toast(x.message||'Could not save your pick.',true);await refresh();}
 }
 function reveal(body,at,revisit){
- const back=document.createElement('div');back.className='reveal-backdrop';back.innerHTML=`<article class="reveal-sheet" role="dialog" aria-modal="true" aria-label="Your picked chit"><button class="reveal-close" type="button" aria-label="Close">×</button><div class="reveal-body">${esc(body)}</div></article>`;document.body.append(back);const close=()=>back.remove();$('.reveal-close',back).onclick=close;back.onclick=e=>{if(e.target===back)close();};document.addEventListener('keydown',function onKey(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',onKey);}},{once:true});
+ const back=document.createElement('div');back.className='reveal-backdrop';back.innerHTML=`<article class="reveal-sheet" role="dialog" aria-modal="true" aria-label="Your picked chit"><div class="reveal-fold" aria-hidden="true"></div><button class="reveal-close" type="button" aria-label="Close">×</button><div class="reveal-body">${esc(body)}</div></article>`;document.body.append(back);const close=()=>back.remove();$('.reveal-close',back).onclick=close;back.onclick=e=>{if(e.target===back)close();};document.addEventListener('keydown',function onKey(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',onKey);}},{once:true});
 }
 async function init(){
  if(!cfg.SUPABASE_URL||!cfg.SUPABASE_PUBLISHABLE_KEY){app.textContent='Supabase configuration is missing.';return;}
