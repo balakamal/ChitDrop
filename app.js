@@ -10,9 +10,9 @@ let adminToken=sessionStorage.getItem('chitdrop:admin:'+token)||new URLSearchPar
 if(adminToken){sessionStorage.setItem('chitdrop:admin:'+token,adminToken);history.replaceState(null,'',location.pathname+location.search);}
 const managerArgs=args=>adminToken?{...args,p_admin_token:adminToken}:args;
 let name = '', session = '', poll = null, busy = false, myPick = null, roomIntroPlayed = false, handTimer = null, handIndex = -1;
-let theme = localStorage.getItem('chitdrop:theme') || 'dark';
+let theme = localStorage.getItem('chitdrop:theme-v2') || 'dark';
 function toast(s, error=false) { const n=document.createElement('div'); n.className='toast'+(error?' error':''); n.textContent=s; $('#toast-root').append(n); setTimeout(()=>n.remove(),3200); }
-function setTheme(t) { theme=t; document.documentElement.dataset.theme=t; localStorage.setItem('chitdrop:theme',t); $('.theme-glyph').textContent=t==='dark'?'☾':'☼'; }
+function setTheme(t) { theme=t; document.documentElement.dataset.theme=t; localStorage.setItem('chitdrop:theme-v2',t); $('.theme-glyph').textContent=t==='dark'?'☾':'☼'; }
 $('#theme-toggle').onclick=()=>setTheme(theme==='dark'?'light':'dark'); setTheme(theme);
 $('#home-button').hidden=!token; $('#home-button').onclick=()=>{stopPoll();location.href=location.pathname;};
 async function rpc(fn,args={}) { const {data,error}=await db.rpc(fn,args); if(error) throw error; return data; }
@@ -56,7 +56,7 @@ async function deleteRoom(r){
   if(!ok)throw Error('Room not found or you do not have permission to delete it.');
   const roomToken=r?.share_token;
   if(roomToken){localStorage.removeItem('chitdrop:session:'+roomToken);localStorage.removeItem('chitdrop:name:'+roomToken);}
-  stopPoll();ownerRoom=null;dashboard();toast('Room and all its data deleted.');
+  stopPoll();ownerRoom=null;if(adminToken){adminToken='';location.href=location.pathname;}else dashboard();toast('Room and all its data deleted.');
  }catch(e){toast(e.message,true);}
 }
 function renderManage(r){
@@ -113,6 +113,6 @@ async function init(){
  if(!cfg.SUPABASE_URL||!cfg.SUPABASE_PUBLISHABLE_KEY){app.textContent='Supabase configuration is missing.';return;}
  const {data}=await db.auth.getSession();user=data.session?.user||null;
  db.auth.onAuthStateChange((_event,s)=>{user=s?.user||null;if(!token)user?dashboard():welcome();});
- if(token)await loadRoom();else user?dashboard():welcome();
+ if(token&&adminToken)await manage(token);else if(token)await loadRoom();else user?dashboard():welcome();
 }
 init().catch(e=>{app.innerHTML='<section class="panel setup-card"><h2>Could not start ChitDrop</h2><p>'+esc(e.message)+'</p></section>';});
