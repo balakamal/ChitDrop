@@ -39,7 +39,7 @@
 /* Reveal modal must never introduce a horizontal scrollbar. */
 html,body{max-width:100%;overflow-x:hidden}
 .reveal-backdrop{box-sizing:border-box;width:100%;max-width:100%;overflow:hidden}
-.reveal-sheet{box-sizing:border-box;width:min(680px,100%);max-width:100%;min-width:0;overflow-x:hidden;overflow-y:auto}
+.reveal-sheet{box-sizing:border-box;width:min(920px,100%);max-width:100%;min-width:0;overflow-x:hidden;overflow-y:auto}
 .reveal-body{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-wrap:anywhere;word-break:normal}
 
 /* Bulk selection and deletion in room management */
